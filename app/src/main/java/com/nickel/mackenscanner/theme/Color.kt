@@ -1,4 +1,4 @@
-package com.example.mackenscanner.ui.theme
+package com.nickel.mackenscanner.theme
 
 import androidx.compose.ui.graphics.Color
 
