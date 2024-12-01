@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.nickel.mackenscanner.theme.MackenScannerTheme
+import com.nickel.mackenscanner.theme.AppTheme
 import com.nickel.mackenscanner.ui.scaffold.MainScaffold
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MackenScannerTheme {
+            AppTheme {
                 MainScaffold()
             }
         }
