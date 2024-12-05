@@ -2,13 +2,14 @@ package com.nickel.mackenscanner.ui.scanner.components
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Size
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.Preview
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
@@ -90,7 +91,11 @@ private fun CameraPreviewContent(
                     .build()
                 preview.surfaceProvider = previewView.surfaceProvider
                 val imageAnalysis = ImageAnalysis.Builder()
-                    .setTargetResolution(Size(previewView.width, previewView.height))
+                    .setResolutionSelector(
+                        ResolutionSelector.Builder()
+                            .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                            .build()
+                        )
                     .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                 imageAnalysis.setAnalyzer(
