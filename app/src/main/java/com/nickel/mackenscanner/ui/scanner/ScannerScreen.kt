@@ -12,11 +12,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nickel.mackenscanner.ui.theme.AppTheme
-import com.nickel.mackenscanner.ui.theme.ThemedPreviews
-import com.nickel.mackenscanner.ui.scanner.ScannerScreenState.ScannerState
 import com.nickel.mackenscanner.ui.scanner.components.CameraPreview
 import com.nickel.mackenscanner.ui.scanner.components.QrCodeSection
+import com.nickel.mackenscanner.ui.theme.AppTheme
+import com.nickel.mackenscanner.ui.theme.ThemedPreviews
 
 @Composable
 internal fun ScannerScreen(
@@ -48,7 +47,7 @@ private fun ScannerScreenContent(
             .fillMaxSize()
             .background(AppTheme.colorScheme.background)
     ) {
-        if (state.scannerState is ScannerState.Scanning) {
+        if (state is ScannerScreenState.Scanning) {
             CameraPreview(
                 onScannerSucceeded = onScannerSucceeded,
                 onScannerCanceled = onScannerCanceled
@@ -59,10 +58,10 @@ private fun ScannerScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = modifier.fillMaxSize()
             ) {
-                when (state.scannerState) {
-                    ScannerState.Loading -> {}
-                    is ScannerState.Success -> {}
-                    ScannerState.Error -> {}
+                when (state) {
+                    ScannerScreenState.Loading -> {}
+                    ScannerScreenState.Success -> {}
+                    ScannerScreenState.Error -> {}
                     else -> Spacer(Modifier.weight(1f))
                 }
                 QrCodeSection(

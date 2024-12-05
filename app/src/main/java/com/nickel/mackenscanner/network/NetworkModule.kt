@@ -1,5 +1,8 @@
 package com.nickel.mackenscanner.network
 
+import com.nickel.mackenscanner.network.hanomacke.MackenRepository
+import com.nickel.mackenscanner.network.hanomacke.MackenService
+import com.nickel.mackenscanner.network.wasteside.WasteSideRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,7 +22,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    internal fun provideRetrofit(): Retrofit =
+    internal fun provideMackenRetrofit(): Retrofit =
         Retrofit
             .Builder()
             .baseUrl(MackenService.MACKEN_URL)
@@ -30,4 +33,9 @@ object NetworkModule {
     @Singleton
     internal fun provideMackenService(retrofit: Retrofit): MackenService =
         retrofit.create(MackenService::class.java)
+
+    @Provides
+    @Singleton
+    internal fun provideWasteSideRepository(): WasteSideRepository =
+        WasteSideRepository()
 }

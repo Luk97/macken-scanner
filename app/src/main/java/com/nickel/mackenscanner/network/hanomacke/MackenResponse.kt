@@ -1,4 +1,4 @@
-package com.nickel.mackenscanner.network
+package com.nickel.mackenscanner.network.hanomacke
 
 import com.google.gson.annotations.SerializedName
 

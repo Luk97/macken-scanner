@@ -1,13 +1,9 @@
 package com.nickel.mackenscanner.ui.scanner
 
-data class ScannerScreenState(
-    val scannerState: ScannerState = ScannerState.Idle
-) {
-    sealed class ScannerState {
-        data object Idle : ScannerState()
-        data object Scanning : ScannerState()
-        data object Loading : ScannerState()
-        data class Success(val result: String) : ScannerState()
-        data object Error : ScannerState()
-    }
+sealed class ScannerScreenState {
+    data object Idle : ScannerScreenState()
+    data object Scanning : ScannerScreenState()
+    data object Loading : ScannerScreenState()
+    data object Success : ScannerScreenState()
+    data object Error : ScannerScreenState()
 }
