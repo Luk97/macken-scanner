@@ -1,19 +1,21 @@
 package com.nickel.mackenscanner.ui.scanner
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nickel.mackenscanner.ui.scanner.components.CameraPreview
-import com.nickel.mackenscanner.ui.scanner.components.QrCodeSection
+import com.nickel.mackenscanner.ui.scanner.components.ErrorView
+import com.nickel.mackenscanner.ui.scanner.components.IdleView
+import com.nickel.mackenscanner.ui.scanner.components.LoadingView
+import com.nickel.mackenscanner.ui.scanner.components.ScanningView
+import com.nickel.mackenscanner.ui.scanner.components.SuccessView
 import com.nickel.mackenscanner.ui.theme.AppTheme
 import com.nickel.mackenscanner.ui.theme.ThemedPreviews
 
@@ -47,36 +49,39 @@ private fun ScannerScreenContent(
             .fillMaxSize()
             .background(AppTheme.colorScheme.background)
     ) {
-        if (state is ScannerScreenState.Scanning) {
-            CameraPreview(
+        when(state) {
+            is ScannerScreenState.Error -> ErrorView(state.message)
+            ScannerScreenState.Idle -> IdleView(
+                onScannerStarted = onScannerStarted
+            )
+            ScannerScreenState.Loading -> LoadingView()
+            ScannerScreenState.Scanning -> ScanningView(
                 onScannerSucceeded = onScannerSucceeded,
                 onScannerCanceled = onScannerCanceled
             )
-        } else {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = modifier.fillMaxSize()
-            ) {
-                when (state) {
-                    ScannerScreenState.Loading -> {}
-                    ScannerScreenState.Success -> {}
-                    ScannerScreenState.Error -> {}
-                    else -> Spacer(Modifier.weight(1f))
-                }
-                QrCodeSection(
-                    onScannerStarted = onScannerStarted,
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            ScannerScreenState.Success -> SuccessView()
         }
     }
 }
 
 @ThemedPreviews
 @Composable
-private fun ScannerScreenPreview() {
+private fun ScannerScreenPreview(
+    @PreviewParameter(ScannerScreenStatePreviewParameterProvider::class) state: ScannerScreenState
+) {
     AppTheme {
-        ScannerScreen()
+        ScannerScreenContent(
+            state = state
+        )
     }
 }
+
+private class ScannerScreenStatePreviewParameterProvider: PreviewParameterProvider<ScannerScreenState> {
+    override val values = sequenceOf(
+        ScannerScreenState.Idle,
+        ScannerScreenState.Loading,
+        ScannerScreenState.Success,
+        ScannerScreenState.Error("error message")
+    )
+}
+

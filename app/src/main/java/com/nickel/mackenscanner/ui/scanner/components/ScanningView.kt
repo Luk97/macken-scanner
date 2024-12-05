@@ -13,6 +13,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -34,7 +35,7 @@ import com.nickel.mackenscanner.scanning.QrCodeAnalyzer
 import com.nickel.mackenscanner.ui.theme.AppTheme
 
 @Composable
-internal fun CameraPreview(
+internal fun ScanningView(
     modifier: Modifier = Modifier,
     onScannerSucceeded: (String) -> Unit = {},
     onScannerCanceled: () -> Unit = {}
@@ -89,12 +90,7 @@ private fun CameraPreviewContent(
                     .build()
                 preview.surfaceProvider = previewView.surfaceProvider
                 val imageAnalysis = ImageAnalysis.Builder()
-                    .setTargetResolution(
-                        Size(
-                            previewView.width,
-                            previewView.height
-                        )
-                    )
+                    .setTargetResolution(Size(previewView.width, previewView.height))
                     .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                 imageAnalysis.setAnalyzer(
@@ -117,7 +113,9 @@ private fun CameraPreviewContent(
         )
         Button(
             onClick = onScannerCanceled,
-            modifier = Modifier.padding(bottom = 16.dp),
+            modifier = Modifier
+                .navigationBarsPadding()
+                .padding(bottom = 16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = AppTheme.colorScheme.background,
                 contentColor = AppTheme.colorScheme.onBackground

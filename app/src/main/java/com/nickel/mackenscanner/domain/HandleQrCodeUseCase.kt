@@ -11,16 +11,17 @@ internal class HandleQrCodeUseCase(
     suspend operator fun invoke(
         qrCode: String,
         onSuccess: () -> Unit = {},
-        onError: () -> Unit = {}
+        onError: (String) -> Unit = {}
     ) {
-        val isValidQrCode = this.wasteSideRepository.validateQrCode()
-
-        val result = if (isValidQrCode) {
-            this.mackenRepository.sendData(qrCode).success
+        if (this.wasteSideRepository.validateQrCode()) {
+            val mackenResponse = this.mackenRepository.sendData(qrCode)
+            if (mackenResponse.success) {
+                onSuccess()
+            } else {
+                onError(mackenResponse.message)
+            }
         } else {
-            false
+            onError("WasteSide Code invalid")
         }
-
-        if (result) onSuccess() else onError()
     }
 }

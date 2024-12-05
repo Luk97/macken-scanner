@@ -12,7 +12,7 @@ import kotlin.coroutines.suspendCoroutine
 internal class MackenRepository(private val service: MackenService) {
 
     suspend fun sendData(qrCode: String): MackenResponse {
-        val response = suspendCoroutine { continuation ->
+        val response: MackenResponse = suspendCoroutine { continuation ->
             val formattedDate = SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss",
                 Locale.getDefault()).format(Date()
@@ -31,17 +31,28 @@ internal class MackenRepository(private val service: MackenService) {
                 ) {
                     if (response.isSuccessful) {
                         val responseBody = response.body()
-                        continuation.resume(responseBody)
+                        continuation.resume(
+                            if (responseBody?.message != null) {
+                                responseBody
+                            } else {
+                                MackenResponse(true, "Successful send data to macken server")
+                            }
+                        )
                     } else {
-                        continuation.resume(null)
+                        continuation.resume(
+                            MackenResponse(false, "Accessing the macken server failed: ${response.errorBody()?.string()}")
+                        )
                     }
                 }
 
                 override fun onFailure(call: Call<MackenResponse>, t: Throwable) {
-                    continuation.resume(null)
+                    continuation.resume(
+                        MackenResponse(false, "Accessing the macken server failed: ${t.message}")
+                    )
                 }
             })
         }
-        return response ?: MackenResponse(false, "Unknown error")
+
+        return response
     }
 }

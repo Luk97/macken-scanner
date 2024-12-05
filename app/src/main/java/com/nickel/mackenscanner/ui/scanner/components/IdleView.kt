@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.nickel.mackenscanner.ui.theme.AppTheme
 
 @Composable
-internal fun QrCodeSection(
+internal fun IdleView(
     modifier: Modifier = Modifier,
     onScannerStarted: () -> Unit = {}
 ) {
@@ -31,7 +31,7 @@ internal fun QrCodeSection(
         modifier = modifier
     ) {
         Text(
-            text = "Scanne WasteSide Gutschein",
+            text = "Scanne WasteSide QrCode",
             style = AppTheme.typography.bodyLarge,
             color = AppTheme.colorScheme.onBackground
         )

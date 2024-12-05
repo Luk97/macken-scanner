@@ -5,5 +5,5 @@ sealed class ScannerScreenState {
     data object Scanning : ScannerScreenState()
     data object Loading : ScannerScreenState()
     data object Success : ScannerScreenState()
-    data object Error : ScannerScreenState()
+    data class Error(val message: String) : ScannerScreenState()
 }

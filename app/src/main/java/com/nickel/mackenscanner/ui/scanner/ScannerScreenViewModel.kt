@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nickel.mackenscanner.domain.HandleQrCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -14,6 +15,10 @@ import javax.inject.Inject
 internal class ScannerScreenViewModel @Inject constructor(
     private val handleQrCodeUseCase: HandleQrCodeUseCase
 ): ViewModel() {
+
+    companion object {
+        const val RESULT_VISIBLE_MS = 10_000L
+    }
 
     private val _state = MutableStateFlow<ScannerScreenState>(ScannerScreenState.Idle)
     val state = _state.asStateFlow()
@@ -39,9 +44,17 @@ internal class ScannerScreenViewModel @Inject constructor(
 
     private fun onHandleQrCodeSuccess() {
         _state.update { ScannerScreenState.Success }
+        viewModelScope.launch {
+            delay(RESULT_VISIBLE_MS)
+            _state.update { ScannerScreenState.Idle }
+        }
     }
 
-    private fun onHandleQrCodeError() {
-        _state.update { ScannerScreenState.Error }
+    private fun onHandleQrCodeError(message: String) {
+        _state.update { ScannerScreenState.Error(message) }
+        viewModelScope.launch {
+            delay(RESULT_VISIBLE_MS)
+            _state.update { ScannerScreenState.Idle }
+        }
     }
 }

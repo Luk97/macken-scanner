@@ -14,6 +14,8 @@ internal interface MackenScannerColorScheme {
     val onSurface: Color
     val onSurfaceVariant: Color
     val border: Color
+    val success: Color
+    val error: Color
 }
 
 internal object LightColorScheme: MackenScannerColorScheme {
@@ -28,6 +30,8 @@ internal object LightColorScheme: MackenScannerColorScheme {
     override val onSurface: Color = DarkGrey
     override val onSurfaceVariant: Color = DarkGrey.copy(alpha = 0.5f)
     override val border: Color = DarkGrey
+    override val success: Color = Green
+    override val error: Color = Red
 }
 
 internal object DarkColorScheme: MackenScannerColorScheme {
@@ -42,4 +46,6 @@ internal object DarkColorScheme: MackenScannerColorScheme {
     override val onSurface: Color = White
     override val onSurfaceVariant: Color = White.copy(alpha = 0.5f)
     override val border: Color = Black
+    override val success: Color = Green
+    override val error: Color = Red
 }
