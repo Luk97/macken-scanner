@@ -1,4 +1,4 @@
-package com.nickel.mackenscanner.theme
+package com.nickel.mackenscanner.ui.theme
 
 import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview

@@ -12,8 +12,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nickel.mackenscanner.theme.AppTheme
-import com.nickel.mackenscanner.theme.ThemedPreviews
+import com.nickel.mackenscanner.ui.theme.AppTheme
+import com.nickel.mackenscanner.ui.theme.ThemedPreviews
 import com.nickel.mackenscanner.ui.scanner.ScannerScreenState.ScannerState
 import com.nickel.mackenscanner.ui.scanner.components.CameraPreview
 import com.nickel.mackenscanner.ui.scanner.components.QrCodeSection
@@ -35,7 +35,7 @@ internal fun ScannerScreen(
 }
 
 @Composable
-fun ScannerScreenContent(
+private fun ScannerScreenContent(
     state: ScannerScreenState,
     modifier: Modifier = Modifier,
     onScannerStarted: () -> Unit = {},

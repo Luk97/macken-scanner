@@ -31,7 +31,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.nickel.mackenscanner.scanning.QrCodeAnalyzer
-import com.nickel.mackenscanner.theme.AppTheme
+import com.nickel.mackenscanner.ui.theme.AppTheme
 
 @Composable
 internal fun CameraPreview(

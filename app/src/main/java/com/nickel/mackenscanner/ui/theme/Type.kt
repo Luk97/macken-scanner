@@ -1,4 +1,4 @@
-package com.nickel.mackenscanner.theme
+package com.nickel.mackenscanner.ui.theme
 
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
