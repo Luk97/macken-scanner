@@ -1,4 +1,11 @@
 <?php
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405); // Method Not Allowed
+    header('Allow: POST');
+    echo json_encode(["error" => "Method Not Allowed. Only POST is allowed."]);
+    exit;
+}
 // Database connection parameters
 $host = 'localhost';
 $dbname = 'd04219f7';
@@ -8,13 +15,13 @@ $password = 'RGGtV9xQxfhGEVC4HMtM';
 // Set headers to handle JSON input and output
 header('Content-Type: application/json');
 
-// Connect to the database
 try {
+    // Connect to the database
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["error" => "Database connection failed: "]);
+    echo json_encode(["error" => "Database connection failed"]);
     exit;
 }
 
@@ -40,22 +47,41 @@ if (!is_string($qr_code) || !is_numeric($value) || !strtotime($scan_time)) {
     exit;
 }
 
-if (!empty($date)) {
-    $query = "
-        SELECT 
-            COUNT(*) AS total_entries,
-            SUM(value) AS total_value,
-            AVG(value) AS average_value,
-            MIN(value) AS min_value,
-            MAX(value) AS max_value
-        FROM Wasteside
-        WHERE DATE(scan_time) = :specific_date
-    ";
-    $params[':specific_date'] = $date;
-}
-
-// Insert data into the database
 try {
+    // Check if qr_code exists in wasteside_codes
+    $stmt = $pdo->prepare("SELECT code FROM wasteside_codes WHERE code = :qr_code");
+    $stmt->bindParam(':qr_code', $qr_code);
+    $stmt->execute();
+    $codeData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$codeData) {
+        http_response_code(200);
+        echo json_encode(["error" => "invalid_code"]);
+        exit;
+    }
+
+    // Check if qr_code has been scanned before
+    $stmt = $pdo->prepare("SELECT MIN(scan_time) AS first_scan FROM Wasteside WHERE qr_code = :qr_code");
+    $stmt->bindParam(':qr_code', $qr_code);
+    $stmt->execute();
+    $scanData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($scanData['first_scan']) {
+        http_response_code(200);
+        echo json_encode([
+            "error" => "already_used",
+            "first_scan_time" => $scanData['first_scan']
+        ]);
+        exit;
+    }
+
+    if(isset($data['check_only']) && $data['check_only'] == true) {
+        http_response_code(200);
+        echo json_encode(["success" => "code_valid"]);
+        exit;
+    }
+
+    // Insert data into the Wasteside table
     $stmt = $pdo->prepare("INSERT INTO Wasteside (scan_time, qr_code, value) VALUES (:scan_time, :qr_code, :value)");
     $stmt->bindParam(':scan_time', $scan_time);
     $stmt->bindParam(':qr_code', $qr_code);
@@ -63,9 +89,9 @@ try {
     $stmt->execute();
 
     http_response_code(201);
-    echo json_encode(["success" => "Data inserted successfully"]);
+    echo json_encode(["success" => "code_logged"]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["error" => "Failed to insert data: " . $e->getMessage()]);
+    echo json_encode(["error" => "Database error"]);
 }
 ?>

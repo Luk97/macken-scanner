@@ -1,4 +1,12 @@
 <?php
+
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    http_response_code(405); // Method Not Allowed
+    header('Allow: GET');
+    echo json_encode(["error" => "Method Not Allowed. Only GET is allowed."]);
+    exit;
+}
+
 // Database connection details
 $host = "localhost";
 $dbname = "d04219f7";
@@ -38,12 +46,20 @@ try {
                 AVG(value) AS average_value,
                 MIN(value) AS min_value,
                 MAX(value) AS max_value
-            FROM Wasteside
-            WHERE DATE(scan_time) = :specific_date
+            FROM (
+                SELECT value
+                FROM Wasteside 
+                WHERE DATE(scan_time) = :specific_date
+                AND scan_time = (
+                    SELECT MIN(scan_time) 
+                    FROM Wasteside w2 
+                    WHERE w2.qr_code = Wasteside.qr_code
+                )
+            ) AS first_scans
         ";
         $params[':specific_date'] = $date;
     }
-
+    
     // Query for a time range
     if (!empty($datetime1) && !empty($datetime2)) {
         $query = "
@@ -53,8 +69,16 @@ try {
                 AVG(value) AS average_value,
                 MIN(value) AS min_value,
                 MAX(value) AS max_value
-            FROM Wasteside
-            WHERE scan_time BETWEEN :datetime1 AND :datetime2
+            FROM (
+                SELECT value
+                FROM Wasteside 
+                WHERE scan_time BETWEEN :datetime1 AND :datetime2
+                AND scan_time = (
+                    SELECT MIN(scan_time) 
+                    FROM Wasteside w2 
+                    WHERE w2.qr_code = Wasteside.qr_code
+                )
+            ) AS first_scans
         ";
         $params[':datetime1'] = $datetime1;
         $params[':datetime2'] = $datetime2;
