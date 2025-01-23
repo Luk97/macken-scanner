@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily or Range Statistics</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+	    <!-- Flatpickr CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto mt-10 p-5 bg-white shadow rounded-lg" x-data="statsHandler()">
+        <h1 class="text-2xl font-bold text-center text-gray-700 mb-6">Statistics Viewer</h1>
+
+        <!-- Mode Selection -->
+        <div class="flex justify-center space-x-4 mb-6">
+            <label class="flex items-center space-x-2">
+                <input type="radio" name="mode" value="single" x-model="mode" @change="resetInputs" class="text-blue-500">
+                <span class="text-gray-600">Single Date</span>
+            </label>
+            <label class="flex items-center space-x-2">
+                <input type="radio" name="mode" value="range" x-model="mode" @change="resetInputs" class="text-blue-500">
+                <span class="text-gray-600">Date Range</span>
+            </label>
+        </div>
+
+        <!-- Single Date Picker -->
+        <div x-show="mode === 'single'" class="mb-6">
+            <label for="singleDatePicker" class="block text-gray-700 text-sm mb-2">Select Date:</label>
+            <input id="singleDatePicker" type="text" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" x-ref="singleDatePicker" @change="fetchStats" />
+        </div>
+
+        <!-- Range Date Picker -->
+        <div x-show="mode === 'range'" class="mb-6">
+            <label for="rangeDatePicker" class="block text-gray-700 text-sm mb-2">Select Date Range:</label>
+            <input id="rangeDatePicker" type="text" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" x-ref="rangeDatePicker" @change="fetchStats" />
+        </div>
+
+        <!-- Statistics Display -->
+        <div class="grid grid-cols-2 gap-6 mt-4">
+            <div class="p-4 bg-blue-100 rounded-lg shadow">
+                <p class="text-2xl font-bold text-blue-600" x-text="count">0</p>
+                <p class="text-sm text-gray-600">Entries Count</p>
+            </div>
+            <div class="p-4 bg-green-100 rounded-lg shadow">
+                <p class="text-2xl font-bold text-green-600">€<span x-text="(totalPrice / 100).toFixed(2)">0.00</span></p>
+                <p class="text-sm text-gray-600">Total Price</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize the Alpine.js component
+        function statsHandler() {
+            return {
+                mode: 'single', // Default to single date mode
+                count: 0,
+                totalPrice: 0, // Stored in cents
+                fetchStats() {
+                    let url = '';
+                    if (this.mode === 'single') {
+                        const selectedDate = this.$refs.singleDatePicker.value;
+                        if (!selectedDate) return;
+                        url = `http://statistik.hanomacke.de/load_stats.php?date=${selectedDate}`;
+                    } else if (this.mode === 'range') {
+                        const selectedRange = this.$refs.rangeDatePicker.value.split(' to ');
+						selectedRange[1]
+                        if (selectedRange.length !== 2) return;
+                        url = `http://statistik.hanomacke.de/load_stats.php?datetime1=${selectedRange[0]}&datetime2=${selectedRange[1]} 23:59:59`;
+                    }
+
+                    // Fetch statistics from the backend
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            this.count = data.total_entries || 0;
+                            this.totalPrice = data.total_value || 0; // Value in cents
+                        })
+                        .catch(error => {
+                            console.error('Error fetching stats:', error);
+                            this.count = 0;
+                            this.totalPrice = 0;
+                        });
+                },
+                resetInputs() {
+                    this.count = 0;
+                    this.totalPrice = 0;
+                    if (this.mode === 'single') {
+                        this.$refs.singleDatePicker.value = '';
+                    } else if (this.mode === 'range') {
+                        this.$refs.rangeDatePicker.value = '';
+                    }
+                },
+                init() {
+                    // Initialize Flatpickr
+                    flatpickr(this.$refs.singleDatePicker, {
+                        dateFormat: "Y-m-d",
+                        defaultDate: new Date(),
+                        onChange: () => this.fetchStats()
+                    });
+
+                    flatpickr(this.$refs.rangeDatePicker, {
+                        mode: "range",
+                        dateFormat: "Y-m-d",
+                        onChange: () => this.fetchStats()
+                    });
+
+                    // Fetch stats for today in single mode by default
+                    this.fetchStats();
+                }
+            };
+        }
+    </script>
+</body>
+</html>
