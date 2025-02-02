@@ -1,11 +1,9 @@
 package com.nickel.mackenscanner.domain
 
 import com.nickel.mackenscanner.network.hanomacke.MackenRepository
-import com.nickel.mackenscanner.network.wasteside.WasteSideRepository
 
 internal class HandleQrCodeUseCase(
-    private val mackenRepository: MackenRepository,
-    private val wasteSideRepository: WasteSideRepository
+    private val mackenRepository: MackenRepository
 ) {
 
     suspend operator fun invoke(
@@ -13,15 +11,14 @@ internal class HandleQrCodeUseCase(
         onSuccess: () -> Unit = {},
         onError: (String) -> Unit = {}
     ) {
-        if (this.wasteSideRepository.validateQrCode()) {
-            val mackenResponse = this.mackenRepository.sendData(qrCode)
-            if (mackenResponse.success) {
-                onSuccess()
-            } else {
-                onError(mackenResponse.message)
-            }
+        val scanValidationResult = this.mackenRepository.validateScan(qrCode, true)
+
+        if (scanValidationResult.success) {
+            onSuccess()
         } else {
             onError("WasteSide Code invalid")
         }
     }
+
+
 }

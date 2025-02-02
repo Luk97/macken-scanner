@@ -14,5 +14,5 @@ internal interface MackenService {
 
     @Headers("Content-Type: application/json")
     @POST("/log_scan.php")
-    fun getResponse(@Body request: MackenRequestBody): Call<MackenResponse>
+    fun getResponse(@Body request: MackenRequestBody): Call<ScanLoggedResultDao>
 }
