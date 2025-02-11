@@ -84,4 +84,3 @@ private class ScannerScreenStatePreviewParameterProvider: PreviewParameterProvid
         ScannerScreenState.Error("error message")
     )
 }
-

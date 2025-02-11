@@ -22,6 +22,11 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        buildConfigField("String", "HANOMACKE_API_KEY", "\"" + System.getenv("HANOMACKE_API_KEY") + "\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {

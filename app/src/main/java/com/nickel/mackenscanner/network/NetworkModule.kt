@@ -1,19 +1,21 @@
 package com.nickel.mackenscanner.network
 
+import com.nickel.mackenscanner.BuildConfig
+import com.nickel.mackenscanner.network.hanomacke.BasicAuthInterceptor
 import com.nickel.mackenscanner.network.hanomacke.MackenRepository
 import com.nickel.mackenscanner.network.hanomacke.MackenService
-import com.nickel.mackenscanner.network.wasteside.WasteSideRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object NetworkModule {
+internal object NetworkModule {
 
     @Provides
     @Singleton
@@ -22,10 +24,23 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    internal fun provideMackenRetrofit(): Retrofit =
+    fun provideBasicAuthClient(): OkHttpClient =
+        OkHttpClient.Builder()
+            .addInterceptor(
+                BasicAuthInterceptor(
+                    MackenService.MACKEN_USER_NAME,
+                    BuildConfig.HANOMACKE_API_KEY
+                )
+            )
+            .build()
+
+    @Provides
+    @Singleton
+    internal fun provideMackenRetrofit(client: OkHttpClient): Retrofit =
         Retrofit
             .Builder()
             .baseUrl(MackenService.MACKEN_URL)
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -33,9 +48,4 @@ object NetworkModule {
     @Singleton
     internal fun provideMackenService(retrofit: Retrofit): MackenService =
         retrofit.create(MackenService::class.java)
-
-    @Provides
-    @Singleton
-    internal fun provideWasteSideRepository(): WasteSideRepository =
-        WasteSideRepository()
 }

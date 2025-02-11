@@ -2,7 +2,6 @@ package com.nickel.mackenscanner.core
 
 import com.nickel.mackenscanner.domain.HandleQrCodeUseCase
 import com.nickel.mackenscanner.network.hanomacke.MackenRepository
-import com.nickel.mackenscanner.network.wasteside.WasteSideRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,9 +14,6 @@ internal object AppModule {
 
     @Provides
     @Singleton
-    fun provideHandleQrCodeUseCase(
-        mackenRepository: MackenRepository,
-        wasteSideRepository: WasteSideRepository,
-    ): HandleQrCodeUseCase =
-        HandleQrCodeUseCase(mackenRepository, wasteSideRepository)
+    fun provideHandleQrCodeUseCase(mackenRepository: MackenRepository): HandleQrCodeUseCase =
+        HandleQrCodeUseCase(mackenRepository)
 }
