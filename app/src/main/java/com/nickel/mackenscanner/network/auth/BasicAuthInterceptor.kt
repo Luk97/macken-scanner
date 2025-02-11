@@ -1,10 +1,10 @@
-package com.nickel.mackenscanner.network.hanomacke
+package com.nickel.mackenscanner.network.auth
 
 import okhttp3.Credentials
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class BasicAuthInterceptor(username: String, password: String) : Interceptor {
+internal class BasicAuthInterceptor(username: String, password: String) : Interceptor {
 
     private val credentials = Credentials.basic(username, password)
 

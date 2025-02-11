@@ -1,5 +1,6 @@
 package com.nickel.mackenscanner.ui.scanner
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nickel.mackenscanner.domain.HandleQrCodeUseCase
@@ -32,6 +33,7 @@ internal class ScannerScreenViewModel @Inject constructor(
     }
 
     fun onScannerSucceeded(result: String) {
+        Log.d("TAG", "RESULT: $result")
         _state.update { ScannerScreenState.Loading }
         viewModelScope.launch {
             handleQrCodeUseCase(

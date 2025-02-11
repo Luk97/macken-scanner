@@ -1,6 +1,7 @@
 package com.nickel.mackenscanner.scanning
 
 import android.graphics.ImageFormat
+import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.zxing.BarcodeFormat
@@ -17,6 +18,7 @@ class QrCodeAnalyzer(
 
     private companion object {
         const val SCAN_COOLDOWN = 2000L
+        const val TAG = "qr-code-analyzer"
     }
 
     private val supportedImageFormats = listOf(
@@ -62,7 +64,9 @@ class QrCodeAnalyzer(
                     )
                 }.decode(binaryBmp)
                 val scannedCode = result.text
+                Log.d(TAG, "scanned Code: $scannedCode")
                 if (lastScannedCode != scannedCode) {
+                    Log.d(TAG, "onSuccess get executed")
                     lastScannedCode = scannedCode
                     lastScannedTime = currentTime
                     onQrCodeScanned(scannedCode)
