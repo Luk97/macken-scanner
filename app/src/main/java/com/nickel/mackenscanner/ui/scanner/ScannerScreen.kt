@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nickel.mackenscanner.data.ScanValidationResult
 import com.nickel.mackenscanner.ui.scanner.components.ErrorView
 import com.nickel.mackenscanner.ui.scanner.components.IdleView
 import com.nickel.mackenscanner.ui.scanner.components.LoadingView
@@ -50,7 +51,7 @@ private fun ScannerScreenContent(
             .background(AppTheme.colorScheme.background)
     ) {
         when(state) {
-            is ScannerScreenState.Error -> ErrorView(state.message)
+            is ScannerScreenState.Error -> ErrorView(state.result)
             ScannerScreenState.Idle -> IdleView(
                 onScannerStarted = onScannerStarted
             )
@@ -59,7 +60,7 @@ private fun ScannerScreenContent(
                 onScannerSucceeded = onScannerSucceeded,
                 onScannerCanceled = onScannerCanceled
             )
-            ScannerScreenState.Success -> SuccessView()
+            is ScannerScreenState.Success -> SuccessView(state.result)
         }
     }
 }
@@ -80,7 +81,17 @@ private class ScannerScreenStatePreviewParameterProvider: PreviewParameterProvid
     override val values = sequenceOf(
         ScannerScreenState.Idle,
         ScannerScreenState.Loading,
-        ScannerScreenState.Success,
-        ScannerScreenState.Error("error message")
+        ScannerScreenState.Success(
+            result = ScanValidationResult(
+                message = "Success",
+                success = true
+            )
+        ),
+        ScannerScreenState.Error(
+            result = ScanValidationResult(
+                message = "sdkjgflsdkjgkölsdjfgäsjdfgjsdäkfgjskdäjgklsdjgkldsjgfj",
+                success = false
+            )
+        )
     )
 }

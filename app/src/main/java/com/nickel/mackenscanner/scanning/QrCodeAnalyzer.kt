@@ -35,6 +35,7 @@ class QrCodeAnalyzer(
 
             val currentTime = System.currentTimeMillis()
             if (currentTime - lastScannedTime < SCAN_COOLDOWN) {
+                Log.d(TAG, "not enough time passed. Closing...")
                 image.close()
                 return
             }

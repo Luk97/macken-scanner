@@ -1,9 +1,9 @@
 package com.nickel.mackenscanner.ui.scanner
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nickel.mackenscanner.domain.HandleQrCodeUseCase
+import com.nickel.mackenscanner.data.ScanValidationResult
+import com.nickel.mackenscanner.domain.ValidateCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,11 +14,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class ScannerScreenViewModel @Inject constructor(
-    private val handleQrCodeUseCase: HandleQrCodeUseCase
+    private val validateCodeUseCase: ValidateCodeUseCase
 ): ViewModel() {
 
     companion object {
-        const val RESULT_VISIBLE_MS = 10_000L
+        const val RESULT_VISIBLE_MS = 7_000L
     }
 
     private val _state = MutableStateFlow<ScannerScreenState>(ScannerScreenState.Idle)
@@ -33,10 +33,9 @@ internal class ScannerScreenViewModel @Inject constructor(
     }
 
     fun onScannerSucceeded(result: String) {
-        Log.d("TAG", "RESULT: $result")
         _state.update { ScannerScreenState.Loading }
         viewModelScope.launch {
-            handleQrCodeUseCase(
+            validateCodeUseCase(
                 qrCode = result,
                 onSuccess = ::onHandleQrCodeSuccess,
                 onError = ::onHandleQrCodeError
@@ -44,16 +43,16 @@ internal class ScannerScreenViewModel @Inject constructor(
         }
     }
 
-    private fun onHandleQrCodeSuccess() {
-        _state.update { ScannerScreenState.Success }
+    private fun onHandleQrCodeSuccess(result: ScanValidationResult) {
+        _state.update { ScannerScreenState.Success(result) }
         viewModelScope.launch {
             delay(RESULT_VISIBLE_MS)
             _state.update { ScannerScreenState.Idle }
         }
     }
 
-    private fun onHandleQrCodeError(message: String) {
-        _state.update { ScannerScreenState.Error(message) }
+    private fun onHandleQrCodeError(result: ScanValidationResult) {
+        _state.update { ScannerScreenState.Error(result) }
         viewModelScope.launch {
             delay(RESULT_VISIBLE_MS)
             _state.update { ScannerScreenState.Idle }

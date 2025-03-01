@@ -3,6 +3,7 @@ package com.nickel.mackenscanner.network.hanomacke
 import com.nickel.mackenscanner.data.ScanValidationResult
 import com.nickel.mackenscanner.network.api.MackenClient
 import com.nickel.mackenscanner.network.dao.ScanLoggedResultDao
+import com.nickel.mackenscanner.utils.DateTimeFormatter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -10,7 +11,7 @@ import java.util.Locale
 internal class MackenRepository(private val client: MackenClient) {
 
     suspend fun validateScan(qrCode: String, checkOnly: Boolean): ScanValidationResult {
-        val request = createLogScanRequest(qrCode, checkOnly)
+        val request = createMackenRequestBody(qrCode, checkOnly)
         val dao = client.requestScanCodeValidation(request)
         return createLogScanResult(dao)
     }
@@ -20,7 +21,7 @@ internal class MackenRepository(private val client: MackenClient) {
         return dao?.remainingCodes
     }
 
-    private fun createLogScanRequest(qrCode: String, checkOnly: Boolean): MackenRequestBody {
+    private fun createMackenRequestBody(qrCode: String, checkOnly: Boolean): MackenRequestBody {
         val formattedDate = SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss",
             Locale.getDefault()
@@ -37,15 +38,19 @@ internal class MackenRepository(private val client: MackenClient) {
         when {
             dao?.success == "code_logged" -> ScanValidationResult(
                 success = true,
-                message = "Code valide. Erfolgreich abgespeichert."
+                message = "Gültiger Code wurde eingelöst."
             )
             dao?.success == "code_valid" -> ScanValidationResult(
                 success = true,
-                message = "Code valide, nicht abgespeichert."
+                message = "Gültiger Code, aber wurde noch nicht eingelöst. "
+            )
+            dao?.error == "already_used" -> ScanValidationResult(
+                success = false,
+                message = "Der Code wurde bereits am ${DateTimeFormatter.convertDateTimeFormat(dao.firstScanTime)} eingelöst."
             )
             else -> ScanValidationResult(
                 success = false,
-                message = "unknown error"
+                message = "Irgendetwas ist schiefgelaufen. Probiere es nochmal."
             )
         }
 }

@@ -22,7 +22,7 @@ internal class MackenClient(private val service: MackenService) {
                 null
             }
         } catch (e: Exception) {
-            Log.e("TAG", "Error: ${e.message}", e)
+            Log.e(TAG, "Error: ${e.message}", e)
             null
         }
 
